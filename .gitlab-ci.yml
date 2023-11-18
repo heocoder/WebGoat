@@ -1,0 +1,38 @@
+stages:
+  - Check
+  - Code Scan
+  - Collect Issue
+variables:
+  XCHECK_TOKEN: $XCHECK_TOKEN
+  GITLAB_ROKEN: $GITLAB_TOKEN
+  PROJECT_ID: $PROJECT_ID
+  GITLAB_URL: $GITLAB_URL
+  SERVER_URL: "http://172.16.3.100:8929/"
+  ACTION_TYPE: "SSCA"
+check:
+  stage: Check
+  script:
+    - echo $XCHECK_TOKEN $GITLAB_TOKEN $PROJECT_ID $GITLAB_URL $SERVER_URL $ACTION_TYPE
+    - xcheck-cli -v
+scan:
+  stage: Code Scan
+  script: |
+      echo "current pwd: $(pwd)"
+      xcheck-cli --server $SERVER_URL --token $XCHECK_TOKEN  --type $ACTION_TYPE project run-devops --compile --wait --all --format detail --code $(pwd) --output detail_result.json gitlab_${ACTION_TYPE}_${PROJECT_ID} > output.txt
+      first_char=$(cut -c 1 output.txt)
+      if [ "$first_char" = "{" ]; then
+        head -c 800 output.txt
+      else
+        cat output.txt
+        exit 1
+      fi
+  artifacts:
+    paths:
+      - detail_result.json
+collect_issue:
+  stage: Collect Issue
+  script:
+    - wget $SERVER_URL/static/plugins/gitlab_ci.py
+    - python3 gitlab_ci.py --gitlab_url $GITLAB_URL --gitlab_token $GITLAB_TOKEN  --project_id $PROJECT_ID --i detail_result.json
+  dependencies:
+    - scan
