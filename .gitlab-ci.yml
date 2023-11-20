@@ -13,6 +13,7 @@ check:
   stage: Check
   script:
     - echo $XCHECK_TOKEN $GITLAB_TOKEN $PROJECT_ID $GITLAB_URL $SERVER_URL $ACTION_TYPE
+    - ip addr
     - xcheck-cli -v
 scan:
   stage: Code Scan
