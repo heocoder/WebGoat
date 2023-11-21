@@ -7,7 +7,7 @@ variables:
   GITLAB_ROKEN: $GITLAB_TOKEN
   PROJECT_ID: $PROJECT_ID
   GITLAB_URL: $GITLAB_URL
-  SERVER_URL: "http://172.16.3.99:8080/"
+  SERVER_URL: "http://43.137.6.227:8080/"
   ACTION_TYPE: "SSCA"
 check:
   stage: Check
